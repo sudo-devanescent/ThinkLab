@@ -1,0 +1,87 @@
+# Archivo .gitignore
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+pnpm-lock.yaml
+
+# NestJS / TypeScript
+dist/
+build/
+*.tsbuildinfo
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+*.env
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+server.log
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Backup files
+*.backup
+*.bak
+
+# Database
+*.sqlite
+*.db
+*.db-journal
+
+# JWT / Security
+*.pem
+*.key
+*.crt
+*.p12
+
+# PM2 / Process managers
+.pm2/
+
+# Docker
+.dockerignore
+*.dockerignore
+
+# NestJS CLI
+nest-cli.json.local
+
+# ESLint / Prettier
+.eslintcache
+.prettiercache
+
+# Miscellaneous
+*.swp
+*.swo
+*~
+.DS_Store
+.idea/
+.vscode/
+*.log
+*.tmp
