@@ -1,98 +1,276 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# ThinkLab Backend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Plataforma de simulaciones adaptativas para el desarrollo del pensamiento crítico en estudiantes universitarios. El backend gestiona escenarios ramificados, evalúa decisiones en tiempo real y adapta la dificultad según el perfil cognitivo de cada usuario.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Stack Tecnológico
 
-## Description
+| Tecnología | Versión | Propósito |
+|------------|---------|-----------|
+| [NestJS](https://nestjs.com/) | ^10.0 | Framework backend Node.js |
+| [TypeORM](https://typeorm.io/) | ^0.3.17 | ORM para PostgreSQL |
+| [PostgreSQL](https://www.postgresql.org/) | - | Base de datos relacional |
+| [Passport](http://www.passportjs.org/) + JWT | - | Autenticación |
+| [bcrypt](https://github.com/kelektiv/node.bcrypt.js) | ^5.1.1 | Hashing de contraseñas |
+| [Jest](https://jestjs.io/) | ^29.5 | Testing unitario y E2E |
+| [TypeScript](https://www.typescriptlang.org/) | ^5.1.3 | Lenguaje |
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Requisitos Previos
 
-## Project setup
+- Node.js >= 18
+- PostgreSQL >= 14
+- npm >= 9
 
-```bash
-$ npm install
+## Configuración del Entorno
+
+Crear un archivo `.env` en la raíz del proyecto basado en las siguientes variables:
+
+```env
+DB_HOST=localhost
+DB_PORT=5432
+DB_USERNAME=postgres
+DB_PASSWORD=tu_contraseña
+DB_NAME=thinklab
+DB_SCHEMA=thinklab
+JWT_SECRET=tu_secreto_jwt
+PORT=3000
 ```
 
-## Compile and run the project
+| Variable | Descripción | Valor por defecto |
+|----------|-------------|-------------------|
+| `DB_HOST` | Host de PostgreSQL | `localhost` |
+| `DB_PORT` | Puerto de PostgreSQL | `5432` |
+| `DB_USERNAME` | Usuario de BD | `postgres` |
+| `DB_PASSWORD` | Contraseña de BD | - |
+| `DB_NAME` | Nombre de la BD | `thinklab` |
+| `DB_SCHEMA` | Esquema de BD | `thinklab` |
+| `JWT_SECRET` | Secreto para firmar tokens JWT | - |
+| `PORT` | Puerto del servidor | `3000` |
+
+## Instalación
 
 ```bash
-# development
-$ npm run start
+# Instalar dependencias
+npm install
 
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+# (Opcional) Compilar para producción
+npm run build
 ```
 
-## Run tests
+La base de datos y el esquema deben crearse manualmente antes de iniciar:
+
+```sql
+CREATE DATABASE thinklab;
+CREATE SCHEMA thinklab;
+```
+
+Las migraciones/tablas se gestionan externamente (el ORM corre con `synchronize: false` por seguridad).
+
+## Ejecución
 
 ```bash
-# unit tests
-$ npm run test
+# Desarrollo con hot-reload
+npm run start:dev
 
-# e2e tests
-$ npm run test:e2e
+# Producción
+npm run start:prod
 
-# test coverage
-$ npm run test:cov
+# Debug
+npm run start:debug
 ```
 
-## Deployment
+## Comandos Disponibles
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+| Comando | Descripción |
+|---------|-------------|
+| `npm run build` | Compila TypeScript a `dist/` |
+| `npm run start` | Inicia el servidor |
+| `npm run start:dev` | Inicia en modo watch (hot-reload) |
+| `npm run start:prod` | Inicia desde `dist/main.js` |
+| `npm run test` | Ejecuta tests unitarios |
+| `npm run test:e2e` | Ejecuta tests end-to-end |
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+## Arquitectura
+
+```
+src/
+├── main.ts                         # Punto de entrada
+├── app.module.ts                   # Módulo raíz
+├── app.controller.ts               # Health check básico (GET /)
+├── common/                         # Código compartido
+│   ├── decorators/
+│   │   └── roles.decorator.ts      # @Roles() para autorización
+│   └── guards/
+│       ├── jwt-auth.guard.ts       # Guard de autenticación JWT
+│       └── roles.guard.ts          # Guard de roles
+├── core/                           # Lógica de negocio pura
+│   ├── evaluation-engine/
+│   │   ├── engine.js               # Motor de evaluación de decisiones
+│   │   ├── adaptive-rules.js       # Selección adaptativa de escenarios
+│   │   ├── engine.test.js          # Tests del motor
+│   │   └── adaptive-rules.test.js  # Tests de reglas adaptativas
+│   └── types/
+│       └── index.d.ts              # Contratos de tipos
+├── entities/                       # Entidades TypeORM
+│   ├── user.entity.ts
+│   ├── session.entity.ts
+│   ├── scenario.entity.ts
+│   ├── scenario-option.entity.ts
+│   ├── scenario-tag.entity.ts
+│   ├── tag.entity.ts
+│   ├── decision.entity.ts
+│   ├── session-scenario.entity.ts
+│   ├── cognitive-profile.entity.ts
+│   └── adaptation-rule.entity.ts
+├── health/                         # Health check
+│   ├── health.module.ts
+│   └── health.controller.ts
+└── modules/                        # Módulos funcionales
+    ├── auth/                       # Autenticación y registro
+    ├── scenarios/                  # Gestión de escenarios
+    ├── decisions/                  # Procesamiento de decisiones
+    ├── profiles/                   # Perfiles cognitivos
+    ├── teacher/                    # Panel docente
+    └── adaptive/                   # Reglas de adaptación
+```
+
+### Módulos
+
+| Módulo | Responsabilidad |
+|--------|----------------|
+| **Auth** | Registro e inicio de sesión con JWT. Crea perfil cognitivo inicial al registrar. |
+| **Scenarios** | Obtiene el siguiente escenario adaptado al perfil del usuario. Usa el motor adaptativo para seleccionar según reglas. |
+| **Decisions** | Procesa la decisión del estudiante, actualiza su perfil cognitivo mediante el motor de evaluación. |
+| **Profiles** | Consulta el perfil cognitivo del usuario con etiquetas cualitativas. |
+| **Teacher** | Panel para docentes: lista de estudiantes con sus perfiles y progreso. |
+| **Adaptive** | Reglas de adaptación disponibles (actualmente registro de entidad). |
+
+## API Endpoints
+
+### Salud
+
+| Método | Ruta | Auth | Descripción |
+|--------|------|------|-------------|
+| `GET` | `/` | No | Bienvenida |
+| `GET` | `/health` | No | Verifica conexión a BD |
+
+### Autenticación
+
+| Método | Ruta | Auth | Descripción |
+|--------|------|------|-------------|
+| `POST` | `/auth/register` | No | Registrar usuario |
+| `POST` | `/auth/login` | No | Iniciar sesión |
+
+**`POST /auth/register`**
+```json
+{
+  "email": "estudiante@thinklab.edu.pe",
+  "password": "mypassword",
+  "fullName": "Nombre Completo",
+  "role": "student"
+}
+```
+- `role` es opcional (default: `student`)
+- La contraseña debe tener al menos 6 caracteres
+
+**`POST /auth/login`**
+```json
+{
+  "email": "estudiante@thinklab.edu.pe",
+  "password": "mypassword"
+}
+```
+- Responde con `access_token` (JWT expira en 7 días) y datos del usuario
+
+### Escenarios
+
+| Método | Ruta | Auth | Descripción |
+|--------|------|------|-------------|
+| `GET` | `/scenarios/next` | JWT | Obtener siguiente escenario adaptado |
+
+- El motor adaptativo selecciona el escenario según el perfil cognitivo del usuario
+- Crea o reutiliza la sesión activa del usuario
+- Retorna el escenario con opciones y `sessionScenarioId` para enviar decisiones
+
+### Decisiones
+
+| Método | Ruta | Auth | Descripción |
+|--------|------|------|-------------|
+| `POST` | `/decisions` | JWT | Enviar decisión de un escenario |
+
+**`POST /decisions`**
+```json
+{
+  "sessionScenarioId": "uuid-del-session-scenario",
+  "optionId": "uuid-de-la-opcion",
+  "responseTimeMs": 3500
+}
+```
+- Actualiza el perfil cognitivo del usuario usando el motor de evaluación
+- Valida que la opción pertenezca al escenario
+- Solo se permite una decisión por `sessionScenarioId`
+
+### Perfil
+
+| Método | Ruta | Auth | Descripción |
+|--------|------|------|-------------|
+| `GET` | `/profile/me` | JWT | Obtener perfil cognitivo del usuario |
+
+Responde con las dimensiones cognitivas (`coherence`, `risk`, `consistency`, `totalDecisions`) más etiquetas cualitativas:
+| Dimensión | Rango | Etiquetas |
+|-----------|-------|-----------|
+| coherence | 0 - 1 | Bajo (< 0.4), Medio (0.4-0.7), Alto (>= 0.7) |
+| risk | 0 - 1 | Bajo (< 0.4), Medio (0.4-0.7), Alto (>= 0.7) |
+| consistency | 0 - 1 | Bajo (< 0.4), Medio (0.4-0.7), Alto (>= 0.7) |
+| experience | - | Sin decisiones, Principiante (< 5), Intermedio (5-15), Avanzado (> 15) |
+
+### Docente
+
+| Método | Ruta | Auth | Roles | Descripción |
+|--------|------|------|-------|-------------|
+| `GET` | `/teacher/students` | JWT | `teacher` | Lista de estudiantes con perfiles |
+
+## Autenticación
+
+Todos los endpoints protegidos requieren el header:
+
+```
+Authorization: Bearer <access_token>
+```
+
+El token JWT incluye en su payload:
+- `sub`: ID del usuario
+- `email`: Correo del usuario
+- `role`: Rol del usuario (`student` o `teacher`)
+
+Los roles se verifican mediante el guard `RolesGuard` combinado con el decorador `@Roles()`.
+
+## Motor de Evaluación Adaptativo
+
+El núcleo del sistema son dos funciones puras en `src/core/evaluation-engine/`:
+
+### `engine.js` — Evaluación de Decisiones
+
+Actualiza el perfil cognitivo aplicando:
+1. **Promedio móvil ponderado** — Combina el historial del usuario con el impacto de la nueva decisión
+2. **Penalización contextual** — Si el riesgo asumido por el usuario se desvía del riesgo esperado del escenario, se penaliza su perfil de riesgo
+3. **Clamping** — Los valores se mantienen en el rango [0, 1]
+
+### `adaptive-rules.js` — Selección de Escenarios
+
+Evalúa reglas del tipo `{ "profile.coherence": { "<": 0.4 } }` contra el perfil del usuario y selecciona la etiqueta del siguiente escenario según la regla de mayor prioridad que se cumpla.
+
+## Testing
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+# Tests unitarios del motor de evaluación y reglas adaptativas
+npm run test
+
+# Tests end-to-end de API
+npm run test:e2e
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+Los tests unitarios cubren las funciones puras del motor (evaluación de decisiones, selección adaptativa) con casos borde como clamping y penalización contextual. Los tests E2E verifican que los endpoints protegidos rechacen peticiones sin autenticación.
 
-## Resources
+## Licencia
 
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+MIT
