@@ -1,0 +1,37 @@
+<div class="app-container">
+  <header class="app-header" *ngIf="currentUser$ | async as user">
+    <div class="header-content container">
+      <div class="logo-wrapper" (click)="goToDashboard(user.role)">
+        <span class="logo-text">ThinkLab</span>
+        <span class="role-badge" [ngClass]="user.role">{{ user.role }}</span>
+      </div>
+
+      <nav class="nav-links">
+        <ng-container *ngIf="user.role === 'student'">
+          <a routerLink="/student/dashboard" routerLinkActive="active-link" [routerLinkActiveOptions]="{exact: true}">Desafíos</a>
+          <a routerLink="/student/profile" routerLinkActive="active-link">Mi Perfil</a>
+        </ng-container>
+        <ng-container *ngIf="user.role === 'teacher'">
+          <a routerLink="/teacher/dashboard" routerLinkActive="active-link">Panel Docente</a>
+        </ng-container>
+        <ng-container *ngIf="user.role === 'admin'">
+          <a routerLink="/admin/dashboard" routerLinkActive="active-link">Consola Admin</a>
+        </ng-container>
+      </nav>
+
+      <div class="user-control">
+        <div class="user-info">
+          <span class="user-icon">👤</span>
+          <span class="greeting">Hola, <strong class="name">{{ user.fullName }}</strong></span>
+        </div>
+        <button class="logout-btn" (click)="logout()" aria-label="Cerrar sesión">
+          <span>Salir</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <router-outlet></router-outlet>
+  </main>
+</div>
