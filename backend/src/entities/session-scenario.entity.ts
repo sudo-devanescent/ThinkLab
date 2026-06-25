@@ -22,6 +22,6 @@ export class SessionScenario {
   @JoinColumn({ name: 'scenario_id' })
   scenario: Scenario;
 
-  @Column({ name: 'order_index', type: 'int' })
+  @Column({ name: 'session_order', type: 'int' })
   orderIndex: number;
 }

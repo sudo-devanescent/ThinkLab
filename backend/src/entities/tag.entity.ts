@@ -9,9 +9,6 @@ export class Tag {
   @Column({ name: 'name', unique: true })
   name: string;
 
-  @Column({ name: 'description', type: 'text' })
-  description: string;
-
   @OneToMany(() => ScenarioTag, (scenarioTag) => scenarioTag.tag)
   scenarioTags: ScenarioTag[];
 }

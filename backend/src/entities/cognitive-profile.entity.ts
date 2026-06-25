@@ -13,13 +13,13 @@ export class CognitiveProfile {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @Column({ name: 'coherence', type: 'float' })
+  @Column({ name: 'coherence_score', type: 'float' })
   coherence: number;
 
-  @Column({ name: 'risk', type: 'float' })
+  @Column({ name: 'risk_score', type: 'float' })
   risk: number;
 
-  @Column({ name: 'consistency', type: 'float' })
+  @Column({ name: 'consistency_score', type: 'float' })
   consistency: number;
 
   @Column({ name: 'total_decisions', type: 'int' })

@@ -2,6 +2,11 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { HealthModule } from './health/health.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { ScenariosModule } from './modules/scenarios/scenarios.module';
+import { DecisionsModule } from './modules/decisions/decisions.module';
+import { ProfilesModule } from './modules/profiles/profiles.module';
+import { TeacherModule } from './modules/teacher/teacher.module';
 
 @Module({
   imports: [
@@ -23,6 +28,11 @@ import { HealthModule } from './health/health.module';
       }),
     }),
     HealthModule,
+    AuthModule,
+    ScenariosModule,
+    DecisionsModule,
+    ProfilesModule,
+    TeacherModule,
   ],
 })
 export class AppModule {}

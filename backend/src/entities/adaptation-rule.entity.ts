@@ -5,8 +5,8 @@ export class AdaptationRule {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ name: 'name' })
-  name: string;
+  @Column({ name: 'description' })
+  description: string;
 
   @Column({ name: 'condition', type: 'jsonb' })
   condition: Record<string, unknown>;

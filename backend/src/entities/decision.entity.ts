@@ -27,6 +27,6 @@ export class Decision {
   @Column({ name: 'scores_at_decision', type: 'jsonb' })
   scoresAtDecision: Record<string, unknown>;
 
-  @Column({ name: 'created_at', type: 'timestamptz' })
+  @Column({ name: 'decided_at', type: 'timestamptz' })
   createdAt: Date;
 }

@@ -13,7 +13,7 @@ export class ScenarioOption {
   @JoinColumn({ name: 'scenario_id' })
   scenario: Scenario;
 
-  @Column({ name: 'code' })
+  @Column({ name: 'option_code' })
   code: string;
 
   @Column({ name: 'text', type: 'text' })
