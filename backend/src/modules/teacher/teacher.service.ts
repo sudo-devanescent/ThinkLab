@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../../entities/user.entity';
@@ -34,5 +34,26 @@ export class TeacherService {
         };
       })
       .sort((a, b) => b.totalDecisions - a.totalDecisions);
+  }
+
+  async getStudentById(id: string) {
+    const user = await this.userRepository.findOne({
+      where: { id, role: 'student' },
+    });
+    if (!user) {
+      throw new NotFoundException('Estudiante no encontrado');
+    }
+    const profile = await this.profileRepository.findOne({
+      where: { userId: id },
+    });
+    return {
+      userId: user.id,
+      fullName: user.fullName,
+      email: user.email,
+      coherence: profile?.coherence ?? 0.5,
+      risk: profile?.risk ?? 0.5,
+      consistency: profile?.consistency ?? 0.5,
+      totalDecisions: profile?.totalDecisions ?? 0,
+    };
   }
 }

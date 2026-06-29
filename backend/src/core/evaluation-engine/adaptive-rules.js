@@ -4,7 +4,7 @@
  * @param {import('../types/index').AdaptationRule[]} rules
  * @returns {string|null} El tag del siguiente escenario o null.
  */
-export function selectNextScenario(profile, rules) {
+function selectNextScenario(profile, rules) {
   // Ordenar por prioridad descendente
   const sorted = [...rules].sort((a, b) => b.priority - a.priority);
 
@@ -44,3 +44,5 @@ export function selectNextScenario(profile, rules) {
   }
   return null;
 }
+
+module.exports = { selectNextScenario };

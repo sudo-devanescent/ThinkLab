@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, of, throwError, BehaviorSubject } from 'rxjs';
-import { tap, map } from 'rxjs/operators';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Observable, BehaviorSubject, tap, catchError, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { User } from '../models/user.model';
 
@@ -24,39 +23,22 @@ export class AuthService {
   }
 
   login(email: string, password?: string): Observable<{ access_token: string }> {
-    // Check credentials and return mock JWT. In production, this would be an http.post.
-    let token = '';
-    let user: User | null = null;
-
-    if (email === 'j.vidaurre@thinklab.edu.pe') {
-      token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJzdHVkZW50XzEyMyIsInJvbGUiOiJzdHVkZW50IiwiZW1haWwiOiJqLnZpZGF1cnJlQHRoaW5rbGFiLmVkdS5wZSIsImZ1bGxOYW1lIjoiSmF2aWVyIFZpZGF1cnJlIn0=.signature';
-      user = { id: 'student_123', email: 'j.vidaurre@thinklab.edu.pe', fullName: 'Javier Vidaurre', role: 'student', isActive: true };
-    } else if (email === 'j.pacheco@thinklab.edu.pe') {
-      token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZWFjaGVyXzEyMyIsInJvbGUiOiJ0ZWFjaGVyIiwiZW1haWwiOiJqLnBhY2hlY29AdGhpbmtsYWIuZWR1LnBlIiwiZnVsbE5hbWUiOiJKb3PDqSBQYWNoZWNvIn0=.signature';
-      user = { id: 'teacher_123', email: 'j.pacheco@thinklab.edu.pe', fullName: 'José Pacheco', role: 'teacher', isActive: true };
-    } else if (email === 'admin@thinklab.edu.pe') {
-      token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbl8xMjMiLCJyb2xlIjoiYWRtaW4iLCJlbWFpbCI6ImFkbWluQHRoaW5rbGFiLmVkdS5wZSIsImZ1bGxOYW1lIjoiQWRtaW5pc3RyYWRvciBHZW5lcmFsIn0=.signature';
-      user = { id: 'admin_123', email: 'admin@thinklab.edu.pe', fullName: 'Administrador General', role: 'admin', isActive: true };
-    } else {
-      return throwError(() => new Error('Credenciales inválidas'));
-    }
-
-    localStorage.setItem(this.tokenKey, token);
-    this.currentUser$.next(user);
-
-    return of({ access_token: token });
+    return this.http.post<{ access_token: string; user: User }>(
+      `${environment.apiUrl}/auth/login`,
+      { email, password }
+    ).pipe(
+      tap(response => {
+        localStorage.setItem(this.tokenKey, response.access_token);
+        this.currentUser$.next(response.user);
+      }),
+      catchError(this.handleError)
+    );
   }
 
   register(data: RegisterPayload): Observable<User> {
-    const newUser: User = {
-      id: Math.random().toString(36).substring(2),
-      email: data.email,
-      fullName: data.fullName,
-      role: data.role,
-      isActive: true
-    };
-    // Mock register success.
-    return of(newUser);
+    return this.http.post<User>(`${environment.apiUrl}/auth/register`, data).pipe(
+      catchError(this.handleError)
+    );
   }
 
   logout(): void {
@@ -93,5 +75,13 @@ export class AuthService {
         isActive: true
       });
     }
+  }
+
+  private handleError(error: HttpErrorResponse) {
+    let msg = 'Error de autenticación.';
+    if (error.status === 401) msg = 'Credenciales inválidas.';
+    else if (error.status === 409) msg = 'El email ya está registrado.';
+    else if (error.status === 0) msg = 'No se puede conectar con el servidor.';
+    return throwError(() => new Error(msg));
   }
 }

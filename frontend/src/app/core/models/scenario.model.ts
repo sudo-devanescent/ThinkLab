@@ -1,6 +1,6 @@
 export interface ScenarioOption {
-  id: string;             // UUID de scenario_options
-  code: string;           // 'A', 'B', 'C'
+  id: string;
+  code: string;
   text: string;
   narrativeConsequence: string;
 }
@@ -15,8 +15,7 @@ export interface Scenario {
 
 export interface ScenarioResponse {
   scenario: Scenario;
-  sessionMeta: {
-    current: number;
-    totalRecommended: number;
-  };
+  sessionScenarioId: string;
+  sessionId: string;
+  orderIndex: number;
 }

@@ -12,5 +12,5 @@ export interface DecisionResponse {
     message: string;
     level: 'positive' | 'neutral' | 'warning';
   };
-  nextScenarioId: string | null;
+  currentScenarioId: string | null;
 }

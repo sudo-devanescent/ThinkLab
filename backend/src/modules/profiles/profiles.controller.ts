@@ -11,4 +11,9 @@ export class ProfilesController {
   async getMyProfile(@Req() req: any) {
     return this.profilesService.getProfile(req.user.id);
   }
+
+  @Get('history')
+  async getHistory(@Req() req: any) {
+    return this.profilesService.getHistory(req.user.id);
+  }
 }

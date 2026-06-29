@@ -2,12 +2,15 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CognitiveProfile } from '../../entities/cognitive-profile.entity';
+import { Decision } from '../../entities/decision.entity';
 
 @Injectable()
 export class ProfilesService {
   constructor(
     @InjectRepository(CognitiveProfile)
     private profileRepository: Repository<CognitiveProfile>,
+    @InjectRepository(Decision)
+    private decisionRepository: Repository<Decision>,
   ) {}
 
   async getProfile(userId: string) {
@@ -35,6 +38,26 @@ export class ProfilesService {
         profile.totalDecisions,
       ),
     };
+  }
+
+  async getHistory(userId: string) {
+    const rows = await this.decisionRepository
+      .createQueryBuilder('d')
+      .innerJoin('d.sessionScenario', 'ss')
+      .innerJoin('ss.session', 'ses')
+      .innerJoin('ss.scenario', 's')
+      .innerJoin('d.option', 'o')
+      .where('ses.userId = :userId', { userId })
+      .select([
+        's.title AS "scenarioTitle"',
+        'o.code AS "optionCode"',
+        's.difficultyLevel AS "difficulty"',
+      ])
+      .orderBy('d.createdAt', 'DESC')
+      .limit(5)
+      .getRawMany();
+
+    return rows;
   }
 
   private getQualitativeLabels(coherence: number, risk: number, consistency: number, totalDecisions: number) {

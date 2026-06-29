@@ -122,7 +122,7 @@ export class DecisionsService {
         consistency: updatedProfile.consistency,
         totalDecisions: updatedProfile.totalDecisions,
       },
-      nextScenarioId: sessionScenario.scenario_id,
+      currentScenarioId: sessionScenario.scenario_id,
     };
   }
 }

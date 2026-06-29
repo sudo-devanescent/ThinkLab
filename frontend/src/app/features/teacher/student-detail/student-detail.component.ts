@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ProfileService } from '../../../core/services/profile.service';
 import { CognitiveRadarComponent } from '../../../shared/components/cognitive-radar/cognitive-radar.component';
 import { ProgressBarLabeledComponent } from '../../../shared/components/progress-bar-labeled/progress-bar-labeled.component';
@@ -16,12 +17,18 @@ import { FeedbackLabelPipe } from '../../../shared/pipes/feedback-label.pipe';
     RouterModule,
     MatCardModule,
     MatButtonModule,
+    MatSnackBarModule,
     CognitiveRadarComponent,
     ProgressBarLabeledComponent,
     FeedbackLabelPipe
   ],
   template: `
-    <div class="detail-container container animate-fade-in" *ngIf="student">
+    <div class="detail-container container animate-fade-in">
+      <div *ngIf="isLoading" class="loading-spinner">
+        <span class="spinner"></span>
+        <span class="loading-text">Cargando información del estudiante...</span>
+      </div>
+      <div *ngIf="student">
       <header class="detail-header">
         <a routerLink="/teacher/dashboard" class="back-link">← Volver al panel</a>
         <div class="student-profile-title">
@@ -136,6 +143,33 @@ import { FeedbackLabelPipe } from '../../../shared/pipes/feedback-label.pipe';
       display: flex;
       flex-direction: column;
       gap: 32px;
+    }
+
+    .loading-spinner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      padding: 64px 0;
+
+      .loading-text {
+        font-size: 13px;
+        color: #8b8fa8;
+      }
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 24px;
+      height: 24px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 0.8s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
     }
 
     .back-link {
@@ -322,19 +356,31 @@ import { FeedbackLabelPipe } from '../../../shared/pipes/feedback-label.pipe';
 })
 export class StudentDetailComponent implements OnInit {
   student: any = null;
+  isLoading = true;
 
   constructor(
     private route: ActivatedRoute,
-    private profileService: ProfileService
+    private profileService: ProfileService,
+    private snackBar: MatSnackBar
   ) {}
 
   ngOnInit() {
+    this.isLoading = true;
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');
       if (id) {
-        this.profileService.getStudentDetail(id).subscribe(detail => {
-          this.student = detail;
+        this.profileService.getStudentDetail(id).subscribe({
+          next: (detail) => {
+            this.isLoading = false;
+            this.student = detail;
+          },
+          error: (err) => {
+            this.isLoading = false;
+            this.snackBar.open(err.message, 'Cerrar', { duration: 4000 });
+          }
         });
+      } else {
+        this.isLoading = false;
       }
     });
   }

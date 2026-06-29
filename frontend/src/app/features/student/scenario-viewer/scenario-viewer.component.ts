@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Scenario, ScenarioOption } from '../../../core/models/scenario.model';
 import { SessionStateService } from '../../../core/services/session-state.service';
 import { DecisionService } from '../../../core/services/decision.service';
@@ -16,7 +16,7 @@ import { ProfileService } from '../../../core/services/profile.service';
     CommonModule,
     MatCardModule,
     MatButtonModule,
-    MatProgressBarModule
+    MatSnackBarModule
   ],
   template: `
     <div class="viewer-container container animate-fade-in" *ngIf="scenario">
@@ -24,10 +24,8 @@ import { ProfileService } from '../../../core/services/profile.service';
       <div class="context-column">
         <div class="progress-section">
           <div class="progress-labels">
-            <span class="session-indicator">Escenario {{ currentIndex }} de {{ totalRecommended }}</span>
-            <span class="progress-percent">{{ progressPercent }}%</span>
+            <span class="session-indicator">Escenario en curso</span>
           </div>
-          <mat-progress-bar mode="determinate" [value]="progressPercent" class="session-progress-bar"></mat-progress-bar>
         </div>
 
         <div class="scenario-content">
@@ -280,18 +278,17 @@ import { ProfileService } from '../../../core/services/profile.service';
 export class ScenarioViewerComponent implements OnInit {
   scenario: Scenario | null = null;
   sessionScenarioId = '';
-  currentIndex = 1;
-  totalRecommended = 5;
   selectedOption: ScenarioOption | null = null;
   isSubmitting = false;
-  
+
   private startTime = 0;
 
   constructor(
     private sessionState: SessionStateService,
     private decisionService: DecisionService,
     private profileService: ProfileService,
-    private router: Router
+    private router: Router,
+    private snackBar: MatSnackBar
   ) {}
 
   ngOnInit() {
@@ -303,17 +300,12 @@ export class ScenarioViewerComponent implements OnInit {
 
     this.scenario = state.currentScenario;
     this.sessionScenarioId = state.sessionScenarioId;
-    this.currentIndex = state.currentIndex;
-    this.totalRecommended = state.totalRecommended;
-    
-    // Start stopwatch invisibly
+
     this.startTime = performance.now();
   }
 
   get progressPercent(): number {
-    // Current index is 1-based. To show completion progress, we can map:
-    // scenario 1 of 5 -> 20%
-    return Math.round((this.currentIndex / this.totalRecommended) * 100);
+    return 0;
   }
 
   selectOption(option: ScenarioOption) {
@@ -345,8 +337,9 @@ export class ScenarioViewerComponent implements OnInit {
           }
         });
       },
-      error: () => {
+      error: (err) => {
         this.isSubmitting = false;
+        this.snackBar.open(err.message, 'Cerrar', { duration: 4000 });
       }
     });
   }

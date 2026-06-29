@@ -1,14 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
+import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
-import { Observable } from 'rxjs';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { Observable, of } from 'rxjs';
+import { catchError, finalize } from 'rxjs/operators';
 import { ProfileService } from '../../../core/services/profile.service';
 import { ScenarioService } from '../../../core/services/scenario.service';
-import { SessionStateService } from '../../../core/services/session-state.service';
 import { CognitiveProfile } from '../../../core/models/cognitive-profile.model';
-import { Scenario } from '../../../core/models/scenario.model';
 import { ProgressBarLabeledComponent } from '../../../shared/components/progress-bar-labeled/progress-bar-labeled.component';
 
 @Component({
@@ -16,16 +16,16 @@ import { ProgressBarLabeledComponent } from '../../../shared/components/progress
   standalone: true,
   imports: [
     CommonModule,
-    RouterModule,
     MatCardModule,
     MatButtonModule,
+    MatSnackBarModule,
     ProgressBarLabeledComponent
   ],
   template: `
     <div class="dashboard-container container animate-fade-in">
       <header class="hero-section">
         <div class="hero-content">
-          <h1>Hola, Estudiante 👋</h1>
+          <h1>Hola, Estudiante</h1>
           <p>Tu mente es tu mejor recurso. Enfréntate a los desafíos y entrena tu pensamiento crítico.</p>
         </div>
       </header>
@@ -37,54 +37,54 @@ import { ProgressBarLabeledComponent } from '../../../shared/components/progress
             <mat-card-title>Perfil Cognitivo Resumido</mat-card-title>
             <mat-card-subtitle>Métricas actuales de tu toma de decisiones</mat-card-subtitle>
           </mat-card-header>
-          <mat-card-content class="profile-content" *ngIf="profile$ | async as profile">
-            <app-progress-bar-labeled
-              label="Coherencia"
-              [value]="profile.coherence">
-            </app-progress-bar-labeled>
-
-            <app-progress-bar-labeled
-              label="Riesgo"
-              [value]="profile.risk">
-            </app-progress-bar-labeled>
-
-            <app-progress-bar-labeled
-              label="Consistencia"
-              [value]="profile.consistency">
-            </app-progress-bar-labeled>
-
-            <div class="quick-stats">
-              <div class="stat-item">
-                <span class="stat-val">{{ profile.totalDecisions }}</span>
-                <span class="stat-lbl">Decisiones Totales</span>
-              </div>
-              <div class="stat-item">
-                <span class="stat-val">{{ sessionProgress }}/5</span>
-                <span class="stat-lbl">Progreso Sesión</span>
-              </div>
+          <mat-card-content class="profile-content">
+            <div *ngIf="isLoading" class="loading-spinner">
+              <span class="spinner"></span>
+              <span class="loading-text">Cargando perfil...</span>
             </div>
+            <ng-container *ngIf="profile$ | async as profile">
+              <app-progress-bar-labeled
+                label="Coherencia"
+                [value]="profile.coherence">
+              </app-progress-bar-labeled>
+
+              <app-progress-bar-labeled
+                label="Riesgo"
+                [value]="profile.risk">
+              </app-progress-bar-labeled>
+
+              <app-progress-bar-labeled
+                label="Consistencia"
+                [value]="profile.consistency">
+              </app-progress-bar-labeled>
+
+              <div class="quick-stats">
+                <div class="stat-item">
+                  <span class="stat-val">{{ profile.totalDecisions }}</span>
+                  <span class="stat-lbl">Decisiones Totales</span>
+                </div>
+              </div>
+            </ng-container>
           </mat-card-content>
         </mat-card>
 
         <!-- Right: Next Challenge -->
-        <mat-card class="challenge-card mat-mdc-card" *ngIf="nextScenarioPreview">
+        <mat-card class="challenge-card mat-mdc-card">
           <mat-card-header>
             <div class="badge-row">
               <span class="challenge-badge">PRÓXIMO DESAFÍO</span>
-              <span class="difficulty-chip" [ngClass]="nextScenarioPreview.difficultyLevel">
-                {{ nextScenarioPreview.difficultyLevel | uppercase }}
-              </span>
             </div>
-            <mat-card-title class="challenge-title">{{ nextScenarioPreview.title }}</mat-card-title>
+            <mat-card-title class="challenge-title">Enfréntate a un nuevo escenario</mat-card-title>
           </mat-card-header>
           <mat-card-content>
             <p class="challenge-context">
-              {{ nextScenarioPreview.context | slice:0:180 }}...
+              Cada escenario pondrá a prueba tu capacidad de análisis, ética y toma de decisiones bajo presión.
             </p>
           </mat-card-content>
           <mat-card-actions>
-            <button mat-flat-button color="primary" class="start-btn" (click)="onComenzar()">
-              Comenzar Desafío
+            <button mat-flat-button color="primary" class="start-btn" [disabled]="isLoading" (click)="onComenzar()">
+              <span *ngIf="!isLoading">Comenzar Desafío</span>
+              <span *ngIf="isLoading" class="spinner"></span>
             </button>
           </mat-card-actions>
         </mat-card>
@@ -168,6 +168,19 @@ import { ProgressBarLabeledComponent } from '../../../shared/components/progress
       gap: 16px;
     }
 
+    .loading-spinner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      padding: 32px 0;
+
+      .loading-text {
+        font-size: 13px;
+        color: #8b8fa8;
+      }
+    }
+
     .quick-stats {
       display: flex;
       gap: 16px;
@@ -216,26 +229,6 @@ import { ProgressBarLabeledComponent } from '../../../shared/components/progress
       letter-spacing: 0.1em;
     }
 
-    .difficulty-chip {
-      font-size: 10px;
-      font-weight: 700;
-      padding: 2px 8px;
-      border-radius: 4px;
-
-      &.easy {
-        background-color: rgba(107, 203, 119, 0.1);
-        color: #6bcb77;
-      }
-      &.medium {
-        background-color: rgba(255, 217, 61, 0.1);
-        color: #ffd93d;
-      }
-      &.hard {
-        background-color: rgba(255, 107, 107, 0.1);
-        color: #ff6b6b;
-      }
-    }
-
     .challenge-title {
       font-size: 22px;
       font-weight: 700;
@@ -259,11 +252,31 @@ import { ProgressBarLabeledComponent } from '../../../shared/components/progress
       box-shadow: 0 4px 12px rgba(108, 99, 255, 0.3) !important;
       transition: all 0.3s ease !important;
 
-      &:hover {
+      &:hover:not(:disabled) {
         background-color: color.adjust(#6c63ff, $lightness: 5%) !important;
         box-shadow: 0 6px 16px rgba(108, 99, 255, 0.4) !important;
         transform: translateY(-1px);
       }
+
+      &:disabled {
+        background-color: rgba(255, 255, 255, 0.05) !important;
+        color: rgba(255, 255, 255, 0.25) !important;
+        box-shadow: none !important;
+      }
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 0.8s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
     }
 
     @media (max-width: 768px) {
@@ -276,35 +289,38 @@ import { ProgressBarLabeledComponent } from '../../../shared/components/progress
 })
 export class StudentDashboardComponent implements OnInit {
   profile$!: Observable<CognitiveProfile>;
-  nextScenarioPreview: Scenario | null = null;
-  sessionProgress = 0;
+  isLoading = true;
 
   constructor(
     private profileService: ProfileService,
     private scenarioService: ScenarioService,
-    private sessionState: SessionStateService,
-    private router: Router
+    private router: Router,
+    private snackBar: MatSnackBar
   ) {}
 
   ngOnInit() {
-    this.profile$ = this.profileService.getMyProfile();
-    
-    // Preview the next scenario
-    const state = this.sessionState.getState();
-    const previewIndex = state.currentIndex + 1;
-    
-    // We fetch scenario dynamically by id
-    const scenarioNum = ((previewIndex - 1) % 10) + 1;
-    this.scenarioService.getScenarioById(`scen-00${scenarioNum}`).subscribe(s => {
-      this.nextScenarioPreview = s;
-    });
-
-    this.sessionProgress = state.currentIndex;
+    this.isLoading = true;
+    this.profile$ = this.profileService.getMyProfile().pipe(
+      finalize(() => this.isLoading = false),
+      catchError(err => {
+        this.isLoading = false;
+        this.snackBar.open(err.message, 'Cerrar', { duration: 4000 });
+        return of({ coherence: 0.5, risk: 0.5, consistency: 0.5, totalDecisions: 0 });
+      })
+    );
   }
 
   onComenzar() {
-    this.scenarioService.getNextScenario().subscribe(() => {
-      this.router.navigate(['/student/scenario']);
+    this.isLoading = true;
+    this.scenarioService.getNextScenario().subscribe({
+      next: () => {
+        this.isLoading = false;
+        this.router.navigate(['/student/scenario']);
+      },
+      error: (err) => {
+        this.isLoading = false;
+        this.snackBar.open(err.message, 'Cerrar', { duration: 4000 });
+      }
     });
   }
 }

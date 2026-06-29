@@ -1,13 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Scenario } from '../models/scenario.model';
-import { CognitiveProfile } from '../models/cognitive-profile.model';
 
 export interface SessionState {
-  sessionScenarioId: string | null;  // Current session_scenario UUID
+  sessionScenarioId: string | null;
   currentScenario: Scenario | null;
-  currentIndex: number;              // Position in the 5-scenario session
-  totalRecommended: number;
-  lastProfile: CognitiveProfile | null;
 }
 
 @Injectable({
@@ -17,9 +13,6 @@ export class SessionStateService {
   private state: SessionState = {
     sessionScenarioId: null,
     currentScenario: null,
-    currentIndex: 0,
-    totalRecommended: 5,
-    lastProfile: null
   };
 
   getState(): SessionState {
@@ -27,19 +20,13 @@ export class SessionStateService {
   }
 
   setState(newState: Partial<SessionState>) {
-    this.state = {
-      ...this.state,
-      ...newState
-    };
+    this.state = { ...this.state, ...newState };
   }
 
   reset() {
     this.state = {
       sessionScenarioId: null,
       currentScenario: null,
-      currentIndex: 0,
-      totalRecommended: 5,
-      lastProfile: null
     };
   }
 }

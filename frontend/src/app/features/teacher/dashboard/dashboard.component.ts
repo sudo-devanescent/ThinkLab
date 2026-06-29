@@ -5,6 +5,7 @@ import { Router, RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { ProfileService } from '../../../core/services/profile.service';
 import { StudentSummary } from '../../../core/models/user.model';
@@ -18,7 +19,8 @@ import { StudentSummary } from '../../../core/models/user.model';
     RouterModule,
     MatCardModule,
     MatInputModule,
-    MatButtonModule
+    MatButtonModule,
+    MatSnackBarModule
   ],
   template: `
     <div class="teacher-container container animate-fade-in">
@@ -40,8 +42,14 @@ import { StudentSummary } from '../../../core/models/user.model';
         </div>
       </div>
 
+      <!-- Loading Indicator -->
+      <div *ngIf="isLoading" class="loading-spinner">
+        <span class="spinner"></span>
+        <span class="loading-text">Cargando estudiantes...</span>
+      </div>
+
       <!-- Students Table Card -->
-      <mat-card class="table-card mat-mdc-card">
+      <mat-card class="table-card mat-mdc-card" *ngIf="!isLoading">
         <div class="table-responsive">
           <table class="students-table">
             <thead>
@@ -319,26 +327,63 @@ import { StudentSummary } from '../../../core/models/user.model';
       color: #8b8fa8;
       font-style: italic;
     }
+
+    .loading-spinner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      padding: 64px 0;
+
+      .loading-text {
+        font-size: 13px;
+        color: #8b8fa8;
+      }
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 24px;
+      height: 24px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 0.8s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
   `]
 })
 export class TeacherDashboardComponent implements OnInit {
   students: StudentSummary[] = [];
   filteredStudents: StudentSummary[] = [];
   searchControl = new FormControl('');
+  isLoading = true;
   
   sortBy = 'name';
   sortAsc = true;
 
   constructor(
     private profileService: ProfileService,
-    private router: Router
+    private router: Router,
+    private snackBar: MatSnackBar
   ) {}
 
   ngOnInit() {
-    this.profileService.getStudents().subscribe(list => {
-      this.students = list;
-      this.filteredStudents = [...list];
-      this.sortStudents();
+    this.isLoading = true;
+    this.profileService.getStudents().subscribe({
+      next: (list) => {
+        this.isLoading = false;
+        this.students = list;
+        this.filteredStudents = [...list];
+        this.sortStudents();
+      },
+      error: (err) => {
+        this.isLoading = false;
+        this.snackBar.open(err.message, 'Cerrar', { duration: 4000 });
+      }
     });
 
     this.searchControl.valueChanges.pipe(

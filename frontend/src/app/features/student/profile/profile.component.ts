@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
-import { Observable } from 'rxjs';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { Observable, of } from 'rxjs';
+import { catchError, finalize } from 'rxjs/operators';
 import { ProfileService } from '../../../core/services/profile.service';
 import { CognitiveProfile } from '../../../core/models/cognitive-profile.model';
 import { CognitiveRadarComponent } from '../../../shared/components/cognitive-radar/cognitive-radar.component';
@@ -14,12 +16,18 @@ import { FeedbackLabelPipe } from '../../../shared/pipes/feedback-label.pipe';
   imports: [
     CommonModule,
     MatCardModule,
+    MatSnackBarModule,
     CognitiveRadarComponent,
     ProgressBarLabeledComponent,
     FeedbackLabelPipe
   ],
   template: `
-    <div class="profile-container container animate-fade-in" *ngIf="profile$ | async as profile">
+    <div class="profile-container container animate-fade-in">
+      <div *ngIf="isLoading" class="loading-spinner">
+        <span class="spinner"></span>
+        <span class="loading-text">Cargando perfil...</span>
+      </div>
+      <div *ngIf="profile$ | async as profile">
       <header class="profile-header">
         <span class="subtitle">ESTADÍSTICAS AVANZADAS</span>
         <h1>Mi Perfil Cognitivo</h1>
@@ -130,6 +138,33 @@ import { FeedbackLabelPipe } from '../../../shared/pipes/feedback-label.pipe';
       display: flex;
       flex-direction: column;
       gap: 32px;
+    }
+
+    .loading-spinner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      padding: 64px 0;
+
+      .loading-text {
+        font-size: 13px;
+        color: #8b8fa8;
+      }
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 24px;
+      height: 24px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 0.8s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
     }
 
     .subtitle {
@@ -335,6 +370,7 @@ import { FeedbackLabelPipe } from '../../../shared/pipes/feedback-label.pipe';
 })
 export class StudentProfileComponent implements OnInit {
   profile$!: Observable<CognitiveProfile>;
+  isLoading = true;
 
   history = [
     { scenarioTitle: 'El presupuesto del aula', optionCode: 'B', difficulty: 'easy' },
@@ -344,10 +380,21 @@ export class StudentProfileComponent implements OnInit {
     { scenarioTitle: 'El informe confidencial', optionCode: 'B', difficulty: 'hard' }
   ];
 
-  constructor(private profileService: ProfileService) {}
+  constructor(
+    private profileService: ProfileService,
+    private snackBar: MatSnackBar
+  ) {}
 
   ngOnInit() {
-    this.profile$ = this.profileService.getMyProfile();
+    this.isLoading = true;
+    this.profile$ = this.profileService.getMyProfile().pipe(
+      finalize(() => this.isLoading = false),
+      catchError(err => {
+        this.isLoading = false;
+        this.snackBar.open(err.message, 'Cerrar', { duration: 4000 });
+        return of({ coherence: 0.5, risk: 0.5, consistency: 0.5, totalDecisions: 0 });
+      })
+    );
   }
 
   getLabelClass(value: number): string {

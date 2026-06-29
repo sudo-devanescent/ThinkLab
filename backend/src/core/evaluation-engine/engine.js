@@ -6,7 +6,7 @@
  * @param {import('../types/index').ScenarioOption} chosenOption
  * @returns {import('../types/index').CognitiveProfile & { debug: object }}
  */
-export function evaluateDecision(currentProfile, scenarioContext, chosenOption) {
+function evaluateDecision(currentProfile, scenarioContext, chosenOption) {
   const { coherence, risk, consistency, totalDecisions } = currentProfile;
   const { coherenceImpact, riskImpact, consistencyImpact } = chosenOption.weights;
 
@@ -31,3 +31,5 @@ export function evaluateDecision(currentProfile, scenarioContext, chosenOption) 
     },
   };
 }
+
+module.exports = { evaluateDecision };

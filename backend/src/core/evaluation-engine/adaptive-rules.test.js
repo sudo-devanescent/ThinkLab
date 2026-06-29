@@ -1,4 +1,4 @@
-import { selectNextScenario } from './adaptive-rules.js';
+const { selectNextScenario } = require('./adaptive-rules.js');
 
 describe('Sistema Adaptativo - selectNextScenario', () => {
   test('Debe seleccionar la regla de mayor prioridad que cumpla la condición', () => {

@@ -1,4 +1,4 @@
-import { evaluateDecision } from './engine.js';
+const { evaluateDecision } = require('./engine.js');
 
 describe('Motor de Evaluación - evaluateDecision', () => {
   test('Caso 1: Debe actualizar el perfil correctamente con una decisión positiva', () => {

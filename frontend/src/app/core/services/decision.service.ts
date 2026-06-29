@@ -1,65 +1,54 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Observable, map, catchError, throwError } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import { DecisionRequest, DecisionResponse } from '../models/decision.model';
-import { ProfileService } from './profile.service';
-import { SessionStateService } from './session-state.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DecisionService {
-  constructor(
-    private profileService: ProfileService,
-    private sessionState: SessionStateService
-  ) {}
+
+  constructor(private http: HttpClient) {}
 
   submitDecision(payload: DecisionRequest): Observable<DecisionResponse> {
-    const currentState = this.sessionState.getState();
-    const currentProfile = this.profileService.getCachedProfile();
+    return this.http.post<{
+      updatedProfile: { coherence: number; risk: number; consistency: number; totalDecisions: number };
+      currentScenarioId: string;
+    }>(`${environment.apiUrl}/decisions`, payload).pipe(
+      map(response => {
+        const avgScore = (
+          response.updatedProfile.coherence +
+          response.updatedProfile.consistency +
+          (1 - response.updatedProfile.risk)
+        ) / 3;
 
-    // 1. Calculate next profile with random variations (-0.08 to +0.08)
-    const randomShift = () => (Math.random() * 0.16) - 0.08;
-    const clamp = (val: number) => Math.min(Math.max(val, 0), 1);
+        let level: 'positive' | 'neutral' | 'warning' = 'neutral';
+        let message = 'Has tomado una decisión razonable. Evaluaste las opciones de manera equilibrada, aunque existen oportunidades para afinar tu análisis crítico.';
 
-    const updatedProfile = {
-      coherence: clamp(currentProfile.coherence + randomShift()),
-      risk: clamp(currentProfile.risk + randomShift()),
-      consistency: clamp(currentProfile.consistency + randomShift()),
-      totalDecisions: currentProfile.totalDecisions + 1
-    };
+        if (avgScore > 0.7) {
+          level = 'positive';
+          message = 'Excelente análisis. Tu elección demuestra una gran coherencia ética y una sólida consistencia en la evaluación del riesgo.';
+        } else if (avgScore < 0.4) {
+          level = 'warning';
+          message = 'Atención. La decisión tomada refleja un riesgo desproporcionado o una falta de coherencia con los principios fundamentales del escenario.';
+        }
 
-    // 2. Save updated profile
-    this.profileService.updateProfile(updatedProfile);
-    this.sessionState.setState({ lastProfile: updatedProfile });
+        return {
+          updatedProfile: response.updatedProfile,
+          feedback: { message, level },
+          currentScenarioId: response.currentScenarioId,
+        };
+      }),
+      catchError(this.handleError)
+    );
+  }
 
-    // 3. Determine feedback level based on average score
-    const avgScore = (updatedProfile.coherence + updatedProfile.consistency + (1 - updatedProfile.risk)) / 3;
-    let level: 'positive' | 'neutral' | 'warning' = 'neutral';
-    let message = 'Has tomado una decisión razonable. Evaluaste las opciones de manera equilibrada, aunque existen oportunidades para afinar tu análisis crítico.';
-
-    if (avgScore > 0.7) {
-      level = 'positive';
-      message = 'Excelente análisis. Tu elección demuestra una gran coherencia ética y una sólida consistencia en la evaluación del riesgo.';
-    } else if (avgScore < 0.4) {
-      level = 'warning';
-      message = 'Atención. La decisión tomada refleja un riesgo desproporcionado o una falta de coherencia con los principios fundamentales del escenario.';
-    }
-
-    // 4. Determine nextScenarioId (if index is 5, session ends, so return null)
-    let nextScenarioId: string | null = null;
-    if (currentState.currentIndex < currentState.totalRecommended) {
-      // Return a rotating mock ID
-      const nextIndex = (currentState.currentIndex + 1);
-      nextScenarioId = `scen-00${nextIndex}`;
-    }
-
-    return of({
-      updatedProfile,
-      feedback: {
-        message,
-        level
-      },
-      nextScenarioId
-    });
+  private handleError(error: HttpErrorResponse) {
+    let msg = 'Error al enviar la decisión.';
+    if (error.status === 400) msg = 'La opción seleccionada no es válida para este escenario.';
+    else if (error.status === 401) msg = 'Sesión expirada. Inicia sesión nuevamente.';
+    else if (error.status === 0) msg = 'No se puede conectar con el servidor.';
+    return throwError(() => new Error(msg));
   }
 }

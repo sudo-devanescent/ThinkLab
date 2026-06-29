@@ -7,7 +7,6 @@ import { DecisionResponse } from '../../../core/models/decision.model';
 import { ScenarioOption } from '../../../core/models/scenario.model';
 import { CognitiveProfile } from '../../../core/models/cognitive-profile.model';
 import { ScenarioService } from '../../../core/services/scenario.service';
-import { SessionStateService } from '../../../core/services/session-state.service';
 import { FeedbackBadgeComponent } from '../../../shared/components/feedback-badge/feedback-badge.component';
 
 @Component({
@@ -76,9 +75,8 @@ import { FeedbackBadgeComponent } from '../../../shared/components/feedback-badg
           </mat-card>
 
           <!-- Navigation Action -->
-          <div class="action-wrapper">
+          <div class="action-wrapper" style="display: flex; flex-direction: column; gap: 12px;">
             <button 
-              *ngIf="decisionResponse.nextScenarioId" 
               mat-flat-button 
               color="primary" 
               class="next-btn"
@@ -86,7 +84,6 @@ import { FeedbackBadgeComponent } from '../../../shared/components/feedback-badg
               Siguiente escenario
             </button>
             <button 
-              *ngIf="!decisionResponse.nextScenarioId" 
               mat-flat-button 
               color="accent" 
               class="next-btn accent"
@@ -326,7 +323,6 @@ export class ConsequenceComponent implements OnInit {
   constructor(
     private router: Router,
     private scenarioService: ScenarioService,
-    private sessionState: SessionStateService
   ) {
     const navigation = this.router.getCurrentNavigation();
     if (navigation?.extras.state) {
