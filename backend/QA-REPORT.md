@@ -263,4 +263,3 @@ Status: 200
 2. **Perfiles cognitivos:** Se actualizan en tiempo real despues de cada decision.
 3. **Sistema adaptativo:** Las reglas de adaptacion filtran escenarios segun el perfil del usuario.
 4. **Autenticacion JWT:** Funciona correctamente en todos los endpoints protegidos.
-5. **Encoding de caracteres:** Las tildes y enes se muestran con encoding incorrecto en la terminal de PowerShell pero se almacenan correctamente en PostgreSQL.

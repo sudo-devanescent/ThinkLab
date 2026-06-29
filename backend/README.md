@@ -25,10 +25,10 @@ Plataforma de simulaciones adaptativas para el desarrollo del pensamiento críti
 Crear un archivo `.env` en la raíz del proyecto basado en las siguientes variables:
 
 ```env
-DB_HOST=localhost
+DB_HOST=127.0.0.1
 DB_PORT=5432
-DB_USERNAME=postgres
-DB_PASSWORD=tu_contraseña
+DB_USERNAME=thinklab_user
+DB_PASSWORD= -
 DB_NAME=thinklab
 DB_SCHEMA=thinklab
 JWT_SECRET=tu_secreto_jwt
@@ -37,9 +37,9 @@ PORT=3000
 
 | Variable | Descripción | Valor por defecto |
 |----------|-------------|-------------------|
-| `DB_HOST` | Host de PostgreSQL | `localhost` |
+| `DB_HOST` | Host de PostgreSQL | `127.0.0.1` |
 | `DB_PORT` | Puerto de PostgreSQL | `5432` |
-| `DB_USERNAME` | Usuario de BD | `postgres` |
+| `DB_USERNAME` | Usuario de BD | `thinklab_user` |
 | `DB_PASSWORD` | Contraseña de BD | - |
 | `DB_NAME` | Nombre de la BD | `thinklab` |
 | `DB_SCHEMA` | Esquema de BD | `thinklab` |
@@ -270,7 +270,3 @@ npm run test:e2e
 ```
 
 Los tests unitarios cubren las funciones puras del motor (evaluación de decisiones, selección adaptativa) con casos borde como clamping y penalización contextual. Los tests E2E verifican que los endpoints protegidos rechacen peticiones sin autenticación.
-
-## Licencia
-
-MIT
