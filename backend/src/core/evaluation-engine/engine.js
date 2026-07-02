@@ -4,7 +4,7 @@
  * @param {import('../types/index').CognitiveProfile} currentProfile
  * @param {import('../types/index').ScenarioContext} scenarioContext
  * @param {import('../types/index').ScenarioOption} chosenOption
- * @returns {import('../types/index').CognitiveProfile & { debug: object }}
+ * @returns {import('../types/index').CognitiveProfile}
  */
 function evaluateDecision(currentProfile, scenarioContext, chosenOption) {
   const { coherence, risk, consistency, totalDecisions } = currentProfile;
@@ -25,10 +25,6 @@ function evaluateDecision(currentProfile, scenarioContext, chosenOption) {
     risk: finalRisk,
     consistency: Math.max(0, Math.min(1, newConsistency)),
     totalDecisions: totalDecisions + 1,
-    debug: {
-      appliedRiskPenalty: riskPenalty,
-      rawRisk: newRisk,
-    },
   };
 }
 

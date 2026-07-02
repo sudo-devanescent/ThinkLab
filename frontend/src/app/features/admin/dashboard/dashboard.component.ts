@@ -1,6 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
 import { MatCardModule } from '@angular/material/card';
+import { environment } from '../../../../environments/environment';
 
 interface AdminScenario {
   title: string;
@@ -26,7 +28,7 @@ interface AdminScenario {
           <mat-card-content class="kpi-content">
             <div class="kpi-icon users">👥</div>
             <div class="kpi-data">
-              <span class="val">7</span>
+              <span class="val">{{ stats?.activeUsers ?? 0 }}</span>
               <span class="lbl">Usuarios Activos</span>
             </div>
           </mat-card-content>
@@ -36,7 +38,7 @@ interface AdminScenario {
           <mat-card-content class="kpi-content">
             <div class="kpi-icon scenarios">📚</div>
             <div class="kpi-data">
-              <span class="val">10</span>
+              <span class="val">{{ stats?.totalScenarios ?? 0 }}</span>
               <span class="lbl">Escenarios Disponibles</span>
             </div>
           </mat-card-content>
@@ -46,7 +48,7 @@ interface AdminScenario {
           <mat-card-content class="kpi-content">
             <div class="kpi-icon sessions">⚡</div>
             <div class="kpi-data">
-              <span class="val">1</span>
+              <span class="val">{{ stats?.activeSessions ?? 0 }}</span>
               <span class="lbl">Sesiones en Vivo</span>
             </div>
           </mat-card-content>
@@ -260,17 +262,30 @@ interface AdminScenario {
     }
   `]
 })
-export class AdminDashboardComponent {
-  scenarios: AdminScenario[] = [
-    { title: 'La inversión', difficulty: 'medium', tags: ['finanzas', 'toma-de-decisiones'] },
-    { title: 'El informe confidencial', difficulty: 'hard', tags: ['ética', 'integridad-académica'] },
-    { title: 'El equipo en crisis', difficulty: 'medium', tags: ['trabajo-en-equipo', 'conflictos'] },
-    { title: 'La votación del grupo', difficulty: 'easy', tags: ['consenso', 'viaje-estudios'] },
-    { title: 'El presupuesto del aula', difficulty: 'easy', tags: ['priorización', 'recursos'] },
-    { title: 'El dilema del examen', difficulty: 'medium', tags: ['ética', 'honestidad'] },
-    { title: 'El uso de la IA', difficulty: 'hard', tags: ['tecnología', 'educación'] },
-    { title: 'La red social escolar', difficulty: 'medium', tags: ['convivencia', 'seguridad'] },
-    { title: 'El proyecto de reciclaje', difficulty: 'easy', tags: ['ecología', 'comunidad'] },
-    { title: 'El campeonato deportivo', difficulty: 'easy', tags: ['deporte', 'fair-play'] }
-  ];
+export class AdminDashboardComponent implements OnInit {
+  stats: { activeUsers: number; totalScenarios: number; activeSessions: number } | null = null;
+  scenarios: AdminScenario[] = [];
+
+  constructor(
+    private http: HttpClient,
+    private cdr: ChangeDetectorRef
+  ) {}
+
+  ngOnInit() {
+    this.http.get<any>(`${environment.apiUrl}/admin/stats`).subscribe({
+      next: (s) => { this.stats = s; this.cdr.markForCheck(); },
+      error: () => { this.stats = null; this.cdr.markForCheck(); }
+    });
+    this.http.get<any[]>(`${environment.apiUrl}/admin/scenarios`).subscribe({
+      next: (list) => {
+        this.scenarios = list.map((s) => ({
+          title: s.title,
+          difficulty: s.difficultyLevel,
+          tags: s.tags ?? [],
+        }));
+        this.cdr.markForCheck();
+      },
+      error: () => { this.scenarios = []; this.cdr.markForCheck(); }
+    });
+  }
 }

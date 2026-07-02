@@ -1,6 +1,6 @@
 import { Injectable, BadRequestException, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, QueryFailedError } from 'typeorm';
 import { Decision } from '../../entities/decision.entity';
 import { SessionScenario } from '../../entities/session-scenario.entity';
 import { ScenarioOption } from '../../entities/scenario-option.entity';
@@ -99,11 +99,11 @@ export class DecisionsService {
     try {
       await this.decisionRepository.save(decision);
     } catch (error) {
-      if (error.message && error.message.includes('fn_validate_decision_option')) {
-        throw new BadRequestException('La opción no pertenece al escenario');
-      }
-      if (error.message && error.message.includes('duplicada') || error.message?.includes('unique')) {
-        throw new BadRequestException('Ya existe una decisión para este sessionScenario');
+      if (error instanceof QueryFailedError) {
+        const code = (error as any).code;
+        if (code === '23505') {
+          throw new BadRequestException('Ya existe una decisión para este sessionScenario');
+        }
       }
       throw error;
     }

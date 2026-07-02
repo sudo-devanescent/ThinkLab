@@ -26,9 +26,9 @@ export class ProfilesService {
       };
     }
     return {
-      coherence: profile.coherence,
-      risk: profile.risk,
-      consistency: profile.consistency,
+      coherence: Number(profile.coherence),
+      risk: Number(profile.risk),
+      consistency: Number(profile.consistency),
       totalDecisions: profile.totalDecisions,
       updatedAt: profile.updatedAt,
       qualitative: this.getQualitativeLabels(

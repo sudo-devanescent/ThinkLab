@@ -10,23 +10,31 @@ export interface SessionState {
   providedIn: 'root'
 })
 export class SessionStateService {
-  private state: SessionState = {
-    sessionScenarioId: null,
-    currentScenario: null,
-  };
+  private readonly STORAGE_KEY = 'thinklab_session_state';
+
+  private readState(): SessionState {
+    try {
+      const raw = sessionStorage.getItem(this.STORAGE_KEY);
+      return raw ? JSON.parse(raw) : { sessionScenarioId: null, currentScenario: null };
+    } catch {
+      return { sessionScenarioId: null, currentScenario: null };
+    }
+  }
+
+  private writeState(state: SessionState): void {
+    sessionStorage.setItem(this.STORAGE_KEY, JSON.stringify(state));
+  }
 
   getState(): SessionState {
-    return { ...this.state };
+    return { ...this.readState() };
   }
 
   setState(newState: Partial<SessionState>) {
-    this.state = { ...this.state, ...newState };
+    const current = this.readState();
+    this.writeState({ ...current, ...newState });
   }
 
   reset() {
-    this.state = {
-      sessionScenarioId: null,
-      currentScenario: null,
-    };
+    sessionStorage.removeItem(this.STORAGE_KEY);
   }
 }

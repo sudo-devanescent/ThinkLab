@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -361,7 +361,8 @@ export class StudentDetailComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private profileService: ProfileService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -373,14 +374,17 @@ export class StudentDetailComponent implements OnInit {
           next: (detail) => {
             this.isLoading = false;
             this.student = detail;
+            this.cdr.markForCheck();
           },
           error: (err) => {
             this.isLoading = false;
             this.snackBar.open(err.message, 'Cerrar', { duration: 4000 });
+            this.cdr.markForCheck();
           }
         });
       } else {
         this.isLoading = false;
+        this.cdr.markForCheck();
       }
     });
   }

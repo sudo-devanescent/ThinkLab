@@ -27,9 +27,9 @@ export class TeacherService {
           userId: user.id,
           fullName: user.fullName,
           email: user.email,
-          coherence: profile?.coherence ?? 0.5,
-          risk: profile?.risk ?? 0.5,
-          consistency: profile?.consistency ?? 0.5,
+          coherence: profile ? Number(profile.coherence) : 0.5,
+          risk: profile ? Number(profile.risk) : 0.5,
+          consistency: profile ? Number(profile.consistency) : 0.5,
           totalDecisions: profile?.totalDecisions ?? 0,
         };
       })
@@ -50,9 +50,9 @@ export class TeacherService {
       userId: user.id,
       fullName: user.fullName,
       email: user.email,
-      coherence: profile?.coherence ?? 0.5,
-      risk: profile?.risk ?? 0.5,
-      consistency: profile?.consistency ?? 0.5,
+      coherence: profile ? Number(profile.coherence) : 0.5,
+      risk: profile ? Number(profile.risk) : 0.5,
+      consistency: profile ? Number(profile.consistency) : 0.5,
       totalDecisions: profile?.totalDecisions ?? 0,
     };
   }

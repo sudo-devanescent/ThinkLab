@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -368,7 +368,8 @@ export class TeacherDashboardComponent implements OnInit {
   constructor(
     private profileService: ProfileService,
     private router: Router,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -379,10 +380,12 @@ export class TeacherDashboardComponent implements OnInit {
         this.students = list;
         this.filteredStudents = [...list];
         this.sortStudents();
+        this.cdr.markForCheck();
       },
       error: (err) => {
         this.isLoading = false;
         this.snackBar.open(err.message, 'Cerrar', { duration: 4000 });
+        this.cdr.markForCheck();
       }
     });
 
@@ -391,6 +394,7 @@ export class TeacherDashboardComponent implements OnInit {
       distinctUntilChanged()
     ).subscribe(term => {
       this.filterStudents(term || '');
+      this.cdr.markForCheck();
     });
   }
 

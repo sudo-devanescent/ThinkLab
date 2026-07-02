@@ -291,7 +291,7 @@ export class LoginComponent {
       },
       error: (err) => {
         this.isLoading = false;
-        this.snackBar.open('Credenciales inválidas. Inténtelo de nuevo.', 'Cerrar', {
+        this.snackBar.open(err.message, 'Cerrar', {
           duration: 4000,
           horizontalPosition: 'end',
           verticalPosition: 'top',

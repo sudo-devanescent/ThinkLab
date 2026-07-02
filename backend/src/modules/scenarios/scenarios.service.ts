@@ -11,6 +11,21 @@ import { Session } from '../../entities/session.entity';
 import { SessionScenario } from '../../entities/session-scenario.entity';
 import { selectNextScenario } from '../../core/evaluation-engine/adaptive-rules.js';
 
+export interface ScenarioOptionPlain {
+  id: string;
+  code: string;
+  text: string;
+  narrativeConsequence: string;
+}
+
+export interface ScenarioPlain {
+  id: string;
+  title: string;
+  context: string;
+  difficultyLevel: string;
+  options: ScenarioOptionPlain[];
+}
+
 @Injectable()
 export class ScenariosService {
   private readonly logger = new Logger(ScenariosService.name);
@@ -33,6 +48,21 @@ export class ScenariosService {
     @InjectRepository(SessionScenario)
     private sessionScenarioRepository: Repository<SessionScenario>,
   ) {}
+
+  private mapScenarioWithOptions(scenario: Scenario): ScenarioPlain {
+    return {
+      id: scenario.id,
+      title: scenario.title,
+      context: scenario.context,
+      difficultyLevel: scenario.difficultyLevel,
+      options: scenario.options.map((opt) => ({
+        id: opt.id,
+        code: opt.code,
+        text: opt.text,
+        narrativeConsequence: opt.narrativeConsequence,
+      })),
+    };
+  }
 
   async getNextScenario(userId: string) {
     const profile = await this.profileRepository.findOne({ where: { userId } });
@@ -99,7 +129,7 @@ export class ScenariosService {
     });
     if (existing) {
       return {
-        scenario,
+        scenario: this.mapScenarioWithOptions(scenario),
         sessionScenarioId: existing.id,
         sessionId: session.id,
         orderIndex: existing.orderIndex,
@@ -120,7 +150,7 @@ export class ScenariosService {
     });
     await this.sessionScenarioRepository.save(sessionScenario);
 
-    return { scenario, sessionScenarioId: sessionScenario.id, sessionId: session.id, orderIndex };
+    return { scenario: this.mapScenarioWithOptions(scenario), sessionScenarioId: sessionScenario.id, sessionId: session.id, orderIndex };
   }
 
   private async getFallbackScenario(userId: string) {
@@ -154,6 +184,6 @@ export class ScenariosService {
       orderIndex,
     });
     await this.sessionScenarioRepository.save(sessionScenario);
-    return { scenario, sessionScenarioId: sessionScenario.id, sessionId: session.id, orderIndex };
+    return { scenario: this.mapScenarioWithOptions(scenario), sessionScenarioId: sessionScenario.id, sessionId: session.id, orderIndex };
   }
 }

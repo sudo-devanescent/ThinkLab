@@ -27,7 +27,7 @@ Crear un archivo `.env` en la raíz del proyecto basado en las siguientes variab
 ```env
 DB_HOST=127.0.0.1
 DB_PORT=5432
-DB_USERNAME=thinklab_user
+DB_USERNAME=thinklab_owner
 DB_PASSWORD= -
 DB_NAME=thinklab
 DB_SCHEMA=thinklab
@@ -39,7 +39,7 @@ PORT=3000
 |----------|-------------|-------------------|
 | `DB_HOST` | Host de PostgreSQL | `127.0.0.1` |
 | `DB_PORT` | Puerto de PostgreSQL | `5432` |
-| `DB_USERNAME` | Usuario de BD | `thinklab_user` |
+| `DB_USERNAME` | Usuario de BD | `thinklab_owner` |
 | `DB_PASSWORD` | Contraseña de BD | - |
 | `DB_NAME` | Nombre de la BD | `thinklab` |
 | `DB_SCHEMA` | Esquema de BD | `thinklab` |

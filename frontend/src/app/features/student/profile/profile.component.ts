@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -371,18 +371,12 @@ import { FeedbackLabelPipe } from '../../../shared/pipes/feedback-label.pipe';
 export class StudentProfileComponent implements OnInit {
   profile$!: Observable<CognitiveProfile>;
   isLoading = true;
-
-  history = [
-    { scenarioTitle: 'El presupuesto del aula', optionCode: 'B', difficulty: 'easy' },
-    { scenarioTitle: 'La votación del grupo', optionCode: 'B', difficulty: 'easy' },
-    { scenarioTitle: 'El equipo en crisis', optionCode: 'B', difficulty: 'medium' },
-    { scenarioTitle: 'La inversión', optionCode: 'A', difficulty: 'medium' },
-    { scenarioTitle: 'El informe confidencial', optionCode: 'B', difficulty: 'hard' }
-  ];
+  history: { scenarioTitle: string; optionCode: string; difficulty: string }[] = [];
 
   constructor(
     private profileService: ProfileService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -395,6 +389,10 @@ export class StudentProfileComponent implements OnInit {
         return of({ coherence: 0.5, risk: 0.5, consistency: 0.5, totalDecisions: 0 });
       })
     );
+    this.profileService.getHistory().subscribe({
+      next: (data) => { this.history = data; this.cdr.markForCheck(); },
+      error: () => { this.history = []; this.cdr.markForCheck(); }
+    });
   }
 
   getLabelClass(value: number): string {

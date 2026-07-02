@@ -5,6 +5,12 @@ import { environment } from '../../../environments/environment';
 import { CognitiveProfile } from '../models/cognitive-profile.model';
 import { StudentSummary } from '../models/user.model';
 
+interface BackendHistoryItem {
+  scenarioTitle: string;
+  optionCode: string;
+  difficulty: string;
+}
+
 interface BackendProfileResponse {
   coherence: number;
   risk: number;
@@ -58,6 +64,12 @@ export class ProfileService {
         consistency: profile.consistency,
         totalDecisions: profile.totalDecisions,
       })),
+      catchError(this.handleError)
+    );
+  }
+
+  getHistory(): Observable<BackendHistoryItem[]> {
+    return this.http.get<BackendHistoryItem[]>(`${environment.apiUrl}/profile/history`).pipe(
       catchError(this.handleError)
     );
   }
